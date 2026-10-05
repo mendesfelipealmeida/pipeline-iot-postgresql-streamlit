@@ -9,8 +9,6 @@ Projeto desenvolvido para a disciplina **Disruptive Architectures: IoT, Big Data
 ├── data/
 │   └── sample_temperature_readings.csv
 ├── docs/
-│   ├── relatorio.md
-│   ├── roteiro-video.md
 │   └── screenshots/
 ├── sql/
 │   ├── schema.sql
@@ -148,8 +146,6 @@ As views analiticas estao em `sql/views.sql`:
 
 ## Documentacao e evidencias
 
-- Relatorio final: `docs/relatorio.md`
-- Roteiro do video pitch: `docs/roteiro-video.md`
-- Evidencias visuais: `docs/screenshots/`
+As evidencias visuais do funcionamento estao em `docs/screenshots/`.
 
 As evidencias incluem validacao do Docker/PostgreSQL, consulta com 18 registros e telas do dashboard Streamlit.
