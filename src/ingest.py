@@ -36,7 +36,8 @@ def normalize_temperature_data(csv_path: str | Path) -> pd.DataFrame:
         raise ValueError(f"Colunas obrigatorias ausentes no CSV: {missing}")
 
     normalized = df.loc[:, ["reading_id", "room_id", "noted_at", "temperature", "location"]].copy()
-    normalized["reading_id"] = pd.to_numeric(normalized["reading_id"], errors="coerce")
+    normalized["reading_id"] = normalized["reading_id"].astype("string").str.strip()
+    normalized["reading_id"] = normalized["reading_id"].replace("", pd.NA)
     normalized["temperature"] = pd.to_numeric(normalized["temperature"], errors="coerce")
     normalized["noted_at"] = pd.to_datetime(
         normalized["noted_at"],
@@ -51,8 +52,12 @@ def normalize_temperature_data(csv_path: str | Path) -> pd.DataFrame:
     )
 
     normalized = normalized.dropna(subset=["reading_id", "temperature", "noted_at"])
-    normalized["reading_id"] = normalized["reading_id"].astype("int64")
     normalized = normalized.drop_duplicates(subset=["reading_id"]).sort_values("noted_at")
+    if normalized.empty:
+        raise ValueError(
+            "Nenhum registro valido encontrado apos normalizacao. "
+            "A carga foi interrompida antes de alterar a tabela existente."
+        )
 
     return normalized[
         ["reading_id", "device_id", "room_id", "noted_at", "temperature", "location"]
@@ -80,6 +85,15 @@ def load_data(csv_path: str | Path | None = None) -> int:
 
     engine = create_engine(settings.database_url)
     data = normalize_temperature_data(source_path)
+    required_columns = {"reading_id", "device_id", "room_id", "noted_at", "temperature", "location"}
+    missing_columns = required_columns.difference(data.columns)
+    if data.empty or missing_columns:
+        missing = ", ".join(sorted(missing_columns)) or "nenhuma"
+        raise ValueError(
+            "Dados normalizados invalidos. "
+            f"Linhas: {len(data)}. Colunas ausentes: {missing}. "
+            "A carga foi interrompida antes de alterar a tabela existente."
+        )
 
     execute_sql_file(engine, SCHEMA_PATH)
     with engine.begin() as connection:

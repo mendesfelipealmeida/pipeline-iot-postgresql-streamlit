@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS temperature_readings (
-    reading_id BIGINT PRIMARY KEY,
+    reading_id TEXT PRIMARY KEY,
     device_id TEXT NOT NULL,
     room_id TEXT,
     noted_at TIMESTAMP NOT NULL,

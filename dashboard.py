@@ -41,7 +41,11 @@ except Exception as exc:
     st.stop()
 
 total_leituras = int(df_avg_temp["total_leituras"].sum()) if not df_avg_temp.empty else 0
-temperatura_media = float(df_resumo["temperatura_media"].mean()) if not df_resumo.empty else 0
+temperatura_media = (
+    float((df_resumo["temperatura_media"] * df_resumo["total_leituras"]).sum() / total_leituras)
+    if total_leituras and not df_resumo.empty
+    else 0
+)
 dispositivos = len(df_avg_temp)
 
 metric_col1, metric_col2, metric_col3 = st.columns(3)
